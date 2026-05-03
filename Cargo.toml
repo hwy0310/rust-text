@@ -13,3 +13,6 @@ dotenvy = "0.15"
 
 enigo = "0.2"
 screenshots = "0.8"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging"] }
