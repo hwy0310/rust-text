@@ -1,4 +1,5 @@
 mod api;
+mod gamebot;
 // 声明 api 模块（包含 client 和 user_api）。
 mod error;
 // 声明 error 模块（统一错误类型）。
