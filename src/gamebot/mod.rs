@@ -16,3 +16,5 @@ pub mod flow_sanguo;
 pub mod runner;
 // 说明：此行用于实现下面这条 Rust 语句对应的功能。
 pub mod template;
+
+pub mod window;
