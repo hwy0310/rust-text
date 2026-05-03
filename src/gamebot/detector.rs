@@ -8,6 +8,10 @@ pub struct TemplateDetector {
 }
 
 impl TemplateDetector {
+    fn cache_key(t: &UiTemplate) -> String {
+        format!("{}::{}", t.name, t.image_path)
+    }
+
     pub fn new() -> Self {
         Self {
             cache: HashMap::new(),
@@ -15,7 +19,8 @@ impl TemplateDetector {
     }
 
     pub fn ensure_loaded(&mut self, t: &UiTemplate) -> Result<(), BotError> {
-        if self.cache.contains_key(&t.name) {
+        let cache_key = Self::cache_key(t);
+        if self.cache.contains_key(&cache_key) {
             return Ok(());
         }
         let mat = imgcodecs::imread(&t.image_path, imgcodecs::IMREAD_COLOR)
@@ -26,16 +31,17 @@ impl TemplateDetector {
                 t.image_path
             )));
         }
-        self.cache.insert(t.name.clone(), mat);
+        self.cache.insert(cache_key, mat);
         Ok(())
     }
 
     pub fn locate(&mut self, frame: &Mat, t: &UiTemplate) -> Result<Option<MatchResult>, BotError> {
         self.ensure_loaded(t)?;
+        let cache_key = Self::cache_key(t);
         let tpl = self
             .cache
-            .get(&t.name)
-            .ok_or_else(|| BotError::Vision(format!("模板未加载: {}", t.name)))?;
+            .get(&cache_key)
+            .ok_or_else(|| BotError::Vision(format!("模板未加载: {}", t.image_path)))?;
 
         let roi = if let Some(r) = t.search_region {
             Mat::roi(frame, r).map_err(|e| BotError::Vision(format!("ROI 裁剪失败: {e}")))?
