@@ -2,6 +2,7 @@ use crate::gamebot::error::BotError;
 use crate::gamebot::template::{MatchResult, UiTemplate};
 use opencv::{core, imgcodecs, imgproc, prelude::*};
 use std::collections::HashMap;
+use std::path::Path;
 
 pub struct TemplateDetector {
     cache: HashMap<String, Mat>,
@@ -9,7 +10,12 @@ pub struct TemplateDetector {
 
 impl TemplateDetector {
     fn cache_key(t: &UiTemplate) -> String {
-        format!("{}::{}", t.name, t.image_path)
+        let normalized_path = Path::new(&t.image_path)
+            .canonicalize()
+            .ok()
+            .and_then(|p| p.into_os_string().into_string().ok())
+            .unwrap_or_else(|| t.image_path.clone());
+        format!("{}::{}", t.name, normalized_path)
     }
 
     pub fn new() -> Self {
